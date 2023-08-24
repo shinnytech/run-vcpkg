@@ -220,21 +220,6 @@ class Utils {
             }
         }
     }
-    /**
-     * Compute an unique string given some text.
-     * @param {string} text The text to computer an hash for.
-     * @returns {string} The unique hash of 'text'.
-     */
-    static hashCode(text) {
-        let hash = 42;
-        if (text.length != 0) {
-            for (let i = 0; i < text.length; i++) {
-                const char = text.charCodeAt(i);
-                hash = ((hash << 5) + hash) ^ char;
-            }
-        }
-        return hash.toString();
-    }
     static isExactKeyMatch(key, cacheKey) {
         if (cacheKey)
             return cacheKey.localeCompare(key, undefined, { sensitivity: "accent" }) === 0;
@@ -287,6 +272,7 @@ class Utils {
     static computeCacheKey(appendedCacheKey) {
         return __awaiter(this, void 0, void 0, function* () {
             let key = "";
+            const { createHash } = require('crypto');
             const inputVcpkgPath = core.getInput(runvcpkglib.vcpkgDirectory);
             const actionLib = new actionlib.ActionLib();
             const baseUtil = new baseutillib.BaseUtilLib(actionLib);
@@ -298,27 +284,29 @@ class Utils {
                     key += `submodGitId=${commitId}`;
                 }
                 else {
-                    key += "localGitId=" + Utils.hashCode(userProvidedCommitId);
+                    key += `localGitId=${userProvidedCommitId}`;
                 }
             }
             else if (userProvidedCommitId) {
                 core.info(`Using user provided vcpkg's Git commit id='${userProvidedCommitId}', adding it to the cache's key.`);
-                key += "localGitId=" + Utils.hashCode(userProvidedCommitId);
+                key += `localGitId=${userProvidedCommitId}`;
             }
             else {
                 core.info(`No vcpkg's commit id was provided, does not contribute to the cache's key.`);
             }
-            key += "-args=" + Utils.hashCode(core.getInput(runvcpkglib.vcpkgArguments));
-            key += "-os=" + Utils.hashCode(process.env.ImageOS ? process.env.ImageOS : process.platform);
+            key += `-args=${core.getInput(runvcpkglib.vcpkgArguments)}`;
+            key += `-os=${process.env.ImageOS ? process.env.ImageOS : process.platform}`;
             if (process.env.ImageVersion) {
-                key += "-imageVer=" + Utils.hashCode(process.env.ImageVersion);
+                key += `-imageVer=${process.env.ImageVersion}`;
             }
-            key += "-appendedKey=" + Utils.hashCode(appendedCacheKey);
+            key += `-appendedKey=${appendedCacheKey}`;
             // Add the triplet only if it is provided.
             const triplet = core.getInput(runvcpkglib.vcpkgTriplet);
             if (triplet)
-                key += "-triplet=" + Utils.hashCode(triplet);
-            return key;
+                key += `-triplet=${triplet}`;
+            let hashKey = createHash('sha256').update(key).digest('hex');
+            core.info(`calc cache key '${key}' to '${hashKey}'`);
+            return hashKey;
         });
     }
     static saveCache(doNotCache, vcpkgCacheComputedKey, hitCacheKey, cachedPaths) {

@@ -276,7 +276,7 @@ class Utils {
                 }
                 else {
                     id = yield runvcpkglib.VcpkgRunner.getCommitId(baseUtils, fullVcpkgPath);
-                    isSubmodule = false;
+                    isSubmodule = true;
                 }
                 id = id === null || id === void 0 ? void 0 : id.trim();
             }
@@ -6718,42 +6718,7 @@ class BaseUtilLib {
         this.baseLib = baseLib;
     }
     isVcpkgSubmodule(gitPath, fullVcpkgPath) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const options = {
-                    cwd: process.env.BUILD_SOURCESDIRECTORY,
-                    failOnStdErr: false,
-                    errStream: process.stdout,
-                    outStream: process.stdout,
-                    ignoreReturnCode: true,
-                    silent: false,
-                    windowsVerbatimArguments: false,
-                    env: process.env
-                };
-                const res = yield this.baseLib.execSync(gitPath, ['submodule', 'status', fullVcpkgPath], options);
-                let isSubmodule = false;
-                if (res.error !== null) {
-                    isSubmodule = res.code == 0;
-                    let msg;
-                    msg = `'git submodule ${fullVcpkgPath}': exit code='${res.code}' `;
-                    // If not null or undefined.
-                    if (res.stdout) {
-                        msg += `, stdout='${res.stdout.trim()}'`;
-                    }
-                    // If not null or undefined.
-                    if (res.stderr) {
-                        msg += `, stderr='${res.stderr.trim()}'`;
-                    }
-                    msg += '.';
-                    this.baseLib.debug(msg);
-                }
-                return isSubmodule;
-            }
-            catch (error) {
-                this.baseLib.warning(`ïsVcpkgSubmodule() failed: ${error}`);
-                return false;
-            }
-        });
+        return true;
     }
     throwIfErrorCode(errorCode) {
         if (errorCode !== 0) {

@@ -1128,7 +1128,7 @@ function createTar(archiveFolder, sourceDirectories, compressionMethod) {
         // Write source directories to manifest.txt to avoid command length limits
         const manifestFilename = 'manifest.txt';
         const cacheFileName = utils.getCacheFileName(compressionMethod);
-        fs_1.writeFileSync(path.join(archiveFolder, manifestFilename), sourceDirectories.join('\n'));
+        fs_1.writeFileSync(path.join(archiveFolder, manifestFilename), sourceDirectories.join('\n').replace(new RegExp(`\\${path.sep}`, 'g'), '/'));
         const workingDirectory = getWorkingDirectory();
         // -T#: Compress using # working thread. If # is 0, attempt to detect and use the number of physical CPU cores.
         // --long=#: Enables long distance matching with # bits. Maximum is 30 (1GB) on 32-bit OS and 31 (2GB) on 64-bit.

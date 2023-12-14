@@ -296,9 +296,6 @@ class Utils {
             }
             key += `-args=${core.getInput(runvcpkglib.vcpkgArguments)}`;
             key += `-os=${process.env.ImageOS ? process.env.ImageOS : process.platform}`;
-            if (process.env.ImageVersion) {
-                key += `-imageVer=${process.env.ImageVersion}`;
-            }
             key += `-appendedKey=${appendedCacheKey}`;
             // Add the triplet only if it is provided.
             const triplet = core.getInput(runvcpkglib.vcpkgTriplet);
